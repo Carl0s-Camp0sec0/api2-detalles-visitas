@@ -9,3 +9,14 @@ exports.obtenerTodos = async (req, res) => {
         console.error(error.message)
     }
 }
+
+exports.getRolPorId = async (req, res) => {
+    try {
+        const id  = req.params;
+        const response = await fetch(baseUrl+ "role/" + id);
+        const rol = await response.json();
+        res.json(rol);
+    } catch (error) {
+        console.error('Error al obtener roles: '.message);
+    }
+};

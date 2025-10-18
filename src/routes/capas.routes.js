@@ -4,5 +4,6 @@ const capasController = require('../controllers/capasController');
 
 // Definir las rutas y asociarlas con los métodos del controlador
 router.get('/todos', capasController.obtenerTodos);
+router.get('/roles/:id')
 
 module.exports = router;
