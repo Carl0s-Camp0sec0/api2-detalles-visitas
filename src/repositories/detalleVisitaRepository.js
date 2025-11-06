@@ -1,6 +1,5 @@
 const pool = require('../config/database');
 
-
 class DetalleVisitaRepository {
     
     async obtenerTodos() {
@@ -28,6 +27,55 @@ class DetalleVisitaRepository {
             detalleVisita.visitaId
         ]);
         return result.insertId;
+    }
+
+    async actualizar(id, datos) {
+        // Mapear campos del frontend a nombres de base de datos
+        const mapeo = {
+            'nombreUsuario': 'nombre_usuario',
+            'aeropuertoId': 'aeropuerto_id',
+            'fecha': 'fecha',
+            'hora': 'hora',
+            'motivoVisita': 'motivo_visita'
+        };
+
+        const updates = [];
+        const valores = [];
+
+        // Construir query dinámicamente solo con campos enviados
+        Object.keys(datos).forEach(key => {
+            const campoDb = mapeo[key] || key;
+            if (mapeo[key] || ['fecha', 'hora'].includes(key)) {
+                updates.push(`${campoDb} = ?`);
+                valores.push(datos[key]);
+            }
+        });
+
+        if (updates.length === 0) {
+            throw new Error('No hay campos válidos para actualizar');
+        }
+
+        valores.push(id); // Agregar ID para el WHERE
+        
+        const query = `UPDATE detalles_visitas SET ${updates.join(', ')} WHERE id = ?`;
+        const [result] = await pool.query(query, valores);
+        
+        if (result.affectedRows === 0) {
+            throw new Error('No se pudo actualizar el detalle de visita');
+        }
+        
+        return result;
+    }
+
+    async eliminar(id) {
+        const query = 'DELETE FROM detalles_visitas WHERE id = ?';
+        const [result] = await pool.query(query, [id]);
+        
+        if (result.affectedRows === 0) {
+            throw new Error('No se pudo eliminar el detalle de visita');
+        }
+        
+        return result;
     }
 
     async obtenerPorUsuarioYAeropuerto(nombreUsuario, aeropuertoId) {
